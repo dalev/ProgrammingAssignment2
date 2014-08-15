@@ -1,15 +1,35 @@
-## Put comments here that give an overall description of what your
-## functions do
+## Utility functions for bundling a matrix together with its inverse.  
+## The inverse will be computed once when demanded and then cached.
 
-## Write a short comment describing this function
-
+## Construct a matrix wrapper object containing the given matrix
 makeCacheMatrix <- function(x = matrix()) {
+  cached_inverse <- NULL
+  
+  set <- function(new_matrix) {
+    x <<- new_matrix
+    cached_inverse <<- NULL
+  }
+  get <- function() x
+  set_inverse <- function(inv) cached_inverse <<- inv
+  get_inverse <- function() cached_inverse
+  
+  list(set = set,
+       get = get,
+       set_inverse = set_inverse,
+       get_inverse = get_inverse)
 
 }
 
-
-## Write a short comment describing this function
-
+## Given a matrix wrapper object built with makeCacheMatrix, return the inverse
+## of the matrix.  The inverse will be computed at most once.
 cacheSolve <- function(x, ...) {
-        ## Return a matrix that is the inverse of 'x'
+  cached_inverse <- x$get_inverse()
+  if(!is.null(cached_inverse)) {
+    message("getting cached data")
+    return(cached_inverse)
+  }
+  x.matrix <- x$get()
+  cached_inverse <- solve(x.matrix)
+  x$set_inverse(cached_inverse)
+  cached_inverse
 }
